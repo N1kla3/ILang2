@@ -1,4 +1,3 @@
-
 import nltk
 from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow
@@ -8,11 +7,15 @@ from nltk import ngrams, RegexpTokenizer
 from regex import split
 
 urllist = {"https://en.wikipedia.org/wiki/Dog": "ENG",
-           "https://en.wikipedia.org/wiki/Dog": "ENG",
-           "https://en.wikipedia.org/wiki/Dog": "ENG",
-           "https://en.wikipedia.org/wiki/Dog": "ENG",
-           "https://en.wikipedia.org/wiki/Dog": "ENG",
-           "https://es.wikipedia.org/wiki/Canis_familiaris": "ESP"}
+           "https://en.wikipedia.org/wiki/Cat": "ENG",
+           "https://en.wikipedia.org/wiki/Dragon": "ENG",
+           "https://en.wikipedia.org/wiki/University": "ENG",
+           "https://en.wikipedia.org/wiki/Unreal_Engine": "ENG",
+           "https://es.wikipedia.org/wiki/Canis_familiaris": "ESP",
+           "https://es.wikipedia.org/wiki/Felis_silvestris_catus": "ESP",
+           "https://es.wikipedia.org/wiki/Drag%C3%B3n": "ESP",
+           "https://es.wikipedia.org/wiki/Unreal_Engine": "ESP",
+           "https://es.wikipedia.org/wiki/Universidad": "ESP"}
 
 
 class MainWindow(QMainWindow):
@@ -73,7 +76,7 @@ class MainWindow(QMainWindow):
             alpha_map = self.calculate_alpha(raw)
             temp_list = [(t[0]) for t in temp_map]
             alpha_list = [(t[0]) for t in alpha_map]
-            self.data_list.append((urllist[url], temp_list, alpha_list))
+            self.data_list.append((urllist[url], temp_list, alpha_list, url))
 
     def detect_language(self, ngram_list_amount):
         result = [1111111111, "url", "lang"]
@@ -85,8 +88,11 @@ class MainWindow(QMainWindow):
                     db_pos = example[1].index(ngram[0])
                     diff = abs(local_pos - db_pos)
                     value += diff
+                else:
+                    value += len(ngram_list_amount)
             if result[0] > value:
                 result[0] = value
+                result[1] = example[3]
                 result[2] = example[0]
         return result
 
@@ -94,14 +100,17 @@ class MainWindow(QMainWindow):
         result = [1111111111, "url", "lang"]
         for example in self.data_list:
             value = 0
-            for letter in alpha_list:
+            for letter in alpha_list[:50]:
                 local_pos = alpha_list.index(letter)
                 if letter[0] in example[2]:
                     db_pos = example[2].index(letter[0])
                     diff = abs(local_pos - db_pos)
                     value += diff
+                else:
+                    value += len(alpha_list)
             if result[0] > value:
                 result[0] = value
+                result[1] = example[3]
                 result[2] = example[0]
         return result
 # TODO: add urlist and all comparable urls
