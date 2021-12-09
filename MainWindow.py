@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup
 from nltk import ngrams, RegexpTokenizer
 from regex import split
 
+nltk.download('punkt')
+
 urllist = {"https://en.wikipedia.org/wiki/Dog": "ENG",
            "https://en.wikipedia.org/wiki/Cat": "ENG",
            "https://en.wikipedia.org/wiki/Dragon": "ENG",
@@ -18,6 +20,25 @@ urllist = {"https://en.wikipedia.org/wiki/Dog": "ENG",
            "https://es.wikipedia.org/wiki/Universidad": "ESP"}
 
 
+class NeuronMethod:
+    __slots__ = ('_path_to_file', '_content')
+
+    LANGUAGES = {'en': 'ENGLISH', 'es': 'SPANISH'}
+
+    def __init__(self, path_to_file: str) -> None:
+        self._path_to_file = path_to_file
+        self.read_file()
+
+    def read_file(self) -> None:
+        with open(self._path_to_file, 'r', encoding='utf-8') as file:
+            self._content = file.read()
+
+    @property
+    def get_result(self) -> str:
+        from langdetect import detect
+        return self.LANGUAGES.get(detect(self._content))
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -26,7 +47,6 @@ class MainWindow(QMainWindow):
         self.text_ngrams_map = []
         self.data_list = []
         self.create_data_dictionary()
-        nltk.download('punkt')
 
     def btn_search_clicked(self):
         result = ""
@@ -40,6 +60,7 @@ class MainWindow(QMainWindow):
         result = self.detect_lang_alpha(alpha_map)
         print(result)
         print(res)
+        print(NeuronMethod('test_english.html').get_result)
 
     def calculate_ngrams(self, text: str):
         result = {}
